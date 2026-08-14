@@ -13,44 +13,70 @@ async function copyText(text,btn){try{await navigator.clipboard.writeText(text);
 document.querySelectorAll('[data-copy]').forEach(btn=>btn.addEventListener('click',()=>copyText($('#'+btn.dataset.copy)?.value||'',btn)));
 document.querySelectorAll('[data-copy-text]').forEach(btn=>btn.addEventListener('click',()=>copyText($('#'+btn.dataset.copyText)?.textContent||'',btn)));
 
-const TEST_CARDS={
- visa:['4242424242424242','4000056655665556'],
- mastercard:['5555555555554444','5105105105105100'],
- amex:['378282246310005']
-};
+/* Documented sandbox/test PANs only. Arbitrary real-world BIN generation is intentionally not supported. */
 const TEST_PREFIXES={
- '424242':'4242424242424242',
- '400005':'4000056655665556',
- '555555':'5555555555554444',
- '510510':'5105105105105100',
- '378282':'378282246310005'
+ '424242':{number:'4242424242424242',label:'Visa Test',network:'visa',cvvLength:3},
+ '400005':{number:'4000056655665556',label:'Visa Debit Test',network:'visa',cvvLength:3},
+ '555555':{number:'5555555555554444',label:'Mastercard Test',network:'mastercard',cvvLength:3},
+ '510510':{number:'5105105105105100',label:'Mastercard Test',network:'mastercard',cvvLength:3},
+ '378282':{number:'378282246310005',label:'American Express Test',network:'amex',cvvLength:4},
+ '601111':{number:'6011111111111117',label:'Discover Test',network:'discover',cvvLength:3}
 };
-function futureExpiry(monthChoice,yearChoice){const now=new Date();const m=monthChoice==='random'?String(Math.floor(Math.random()*12)+1).padStart(2,'0'):monthChoice;const y=yearChoice==='random'?String((now.getFullYear()+2+Math.floor(Math.random()*4))%100).padStart(2,'0'):yearChoice;return `${m}/${y}`}
+const TEST_CARDS=Object.values(TEST_PREFIXES);
+
+function futureExpiry(monthChoice,yearChoice){
+ const now=new Date();
+ const m=monthChoice==='random'?String(Math.floor(Math.random()*12)+1).padStart(2,'0'):monthChoice;
+ const y=yearChoice==='random'?String((now.getFullYear()+2+Math.floor(Math.random()*5))%100).padStart(2,'0'):yearChoice;
+ return `${m}/${y}`;
+}
+function matchTestBin(value){
+ const bin=(value||'').replace(/\D/g,'').slice(0,8);
+ if(!bin)return null;
+ const entry=Object.entries(TEST_PREFIXES).find(([prefix,data])=>prefix.startsWith(bin)||bin.startsWith(prefix)||data.number.startsWith(bin));
+ return entry?{prefix:entry[0],...entry[1]}:null;
+}
+function updateBinUI(){
+ const input=$('#cardBin'); if(!input)return;
+ input.value=input.value.replace(/\D/g,'').slice(0,8);
+ const value=input.value;
+ const match=matchTestBin(value);
+ const badge=$('#binBadge');
+ const msg=$('#binMessage');
+ document.querySelectorAll('.bin-chip').forEach(chip=>chip.classList.toggle('active',!!match&&chip.dataset.testBin===match.prefix));
+ if(!value){
+   if(badge)badge.textContent='Random Test';
+   if(msg){msg.textContent='Choose one of the sandbox test prefixes below, or leave it blank for a random test card.';msg.className='field-message'}
+ }else if(match){
+   if(badge)badge.textContent=match.label;
+   if(msg){msg.textContent=`Recognized sandbox prefix ${match.prefix}. The generated PAN will stay within the bundled test-card set.`;msg.className='field-message ok'}
+ }else{
+   if(badge)badge.textContent='Unsupported';
+   if(msg){msg.textContent='This prefix is not in the bundled sandbox test list. Choose one of the presets below.';msg.className='field-message error'}
+ }
+}
+$('#cardBin')?.addEventListener('input',updateBinUI);
+document.querySelectorAll('.bin-chip').forEach(chip=>chip.addEventListener('click',()=>{const input=$('#cardBin');if(input){input.value=chip.dataset.testBin;updateBinUI();input.focus()}}));
+updateBinUI();
+
 $('#generateCards')?.addEventListener('click',()=>{
- const network=$('#cardNetwork').value;
  const qty=Math.max(1,Math.min(50,Number($('#cardQty').value)||1));
  const month=$('#cardMonth').value;
  const year=$('#cardYear').value;
- const cvvInput=$('#cardCvv').value.trim();
+ const cvvInput=$('#cardCvv').value.trim().replace(/\D/g,'').slice(0,4);
  const bin=($('#cardBin')?.value||'').replace(/\D/g,'').slice(0,8);
- const keys=Object.keys(TEST_CARDS);
- let forcedNumber=null;
- if(bin){
-   const match=Object.keys(TEST_PREFIXES).find(prefix=>bin.startsWith(prefix)||prefix.startsWith(bin));
-   if(!match){alert('That BIN/prefix is not in the bundled sandbox test list. Use one of: 424242, 400005, 555555, 510510, 378282.');return}
-   forcedNumber=TEST_PREFIXES[match];
- }
+ let selected=bin?matchTestBin(bin):randomItem(TEST_CARDS);
+ if(bin&&!selected){alert('Choose one of the bundled sandbox test BINs shown below the field.');return}
  const rows=[];
  for(let i=0;i<qty;i++){
-   let key=network==='random'?randomItem(keys):network;
-   let number=forcedNumber||randomItem(TEST_CARDS[key]);
-   if(number.length===15) key='amex';
-   const cvv=cvvInput||String(Math.floor(Math.random()*(key==='amex'?9000:900))+(key==='amex'?1000:100));
-   rows.push(`${number}|${futureExpiry(month,year)}|${cvv}`)
+   const card=bin?selected:randomItem(TEST_CARDS);
+   const cvv=cvvInput||randomString(card.cvvLength,'0123456789');
+   rows.push(`${card.number}|${futureExpiry(month,year)}|${cvv}`);
  }
- $('#cardOutput').value=rows.join('\n')
+ $('#cardOutput').value=rows.join('\n');
+ const count=$('#cardCountLabel'); if(count)count.textContent=`${qty} card${qty===1?'':'s'} generated`;
 });
-$('#clearCards')?.addEventListener('click',()=>$('#cardOutput').value='');
+$('#clearCards')?.addEventListener('click',()=>{const out=$('#cardOutput');if(out)out.value='';const count=$('#cardCountLabel');if(count)count.textContent='0 cards generated'});
 
 const EMAIL_NAMES=['olivia','emma','amelia','isla','sophia','mia','ava','luna','noah','liam','oliver','mason','ethan','lucas','maria','angelica','janelle','paolo','miguel','carlo'];
 $('#generateEmails')?.addEventListener('click',()=>{
