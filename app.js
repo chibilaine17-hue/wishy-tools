@@ -1,6 +1,6 @@
 const $=(s)=>document.querySelector(s);
 const randomItem=(arr)=>arr[Math.floor(Math.random()*arr.length)];
-const randomString=(len=10)=>Array.from({length:len},()=>randomItem('abcdefghijklmnopqrstuvwxyz0123456789')).join('');
+const randomString=(len=10,chars='abcdefghijklmnopqrstuvwxyz0123456789')=>Array.from({length:len},()=>randomItem(chars)).join('');
 
 const root=document.documentElement;
 const saved=localStorage.getItem('wishy-theme');
@@ -18,11 +18,55 @@ const TEST_CARDS={
  mastercard:['5555555555554444','5105105105105100'],
  amex:['378282246310005']
 };
+const TEST_PREFIXES={
+ '424242':'4242424242424242',
+ '400005':'4000056655665556',
+ '555555':'5555555555554444',
+ '510510':'5105105105105100',
+ '378282':'378282246310005'
+};
 function futureExpiry(monthChoice,yearChoice){const now=new Date();const m=monthChoice==='random'?String(Math.floor(Math.random()*12)+1).padStart(2,'0'):monthChoice;const y=yearChoice==='random'?String((now.getFullYear()+2+Math.floor(Math.random()*4))%100).padStart(2,'0'):yearChoice;return `${m}/${y}`}
-$('#generateCards')?.addEventListener('click',()=>{const network=$('#cardNetwork').value;const qty=Math.max(1,Math.min(50,Number($('#cardQty').value)||1));const month=$('#cardMonth').value;const year=$('#cardYear').value;const cvvInput=$('#cardCvv').value.trim();const keys=Object.keys(TEST_CARDS);const rows=[];for(let i=0;i<qty;i++){const key=network==='random'?randomItem(keys):network;const number=randomItem(TEST_CARDS[key]);const cvv=cvvInput||String(Math.floor(Math.random()*(key==='amex'?9000:900))+(key==='amex'?1000:100));rows.push(`${number}|${futureExpiry(month,year)}|${cvv}`)}$('#cardOutput').value=rows.join('\n')});
+$('#generateCards')?.addEventListener('click',()=>{
+ const network=$('#cardNetwork').value;
+ const qty=Math.max(1,Math.min(50,Number($('#cardQty').value)||1));
+ const month=$('#cardMonth').value;
+ const year=$('#cardYear').value;
+ const cvvInput=$('#cardCvv').value.trim();
+ const bin=($('#cardBin')?.value||'').replace(/\D/g,'').slice(0,8);
+ const keys=Object.keys(TEST_CARDS);
+ let forcedNumber=null;
+ if(bin){
+   const match=Object.keys(TEST_PREFIXES).find(prefix=>bin.startsWith(prefix)||prefix.startsWith(bin));
+   if(!match){alert('That BIN/prefix is not in the bundled sandbox test list. Use one of: 424242, 400005, 555555, 510510, 378282.');return}
+   forcedNumber=TEST_PREFIXES[match];
+ }
+ const rows=[];
+ for(let i=0;i<qty;i++){
+   let key=network==='random'?randomItem(keys):network;
+   let number=forcedNumber||randomItem(TEST_CARDS[key]);
+   if(number.length===15) key='amex';
+   const cvv=cvvInput||String(Math.floor(Math.random()*(key==='amex'?9000:900))+(key==='amex'?1000:100));
+   rows.push(`${number}|${futureExpiry(month,year)}|${cvv}`)
+ }
+ $('#cardOutput').value=rows.join('\n')
+});
 $('#clearCards')?.addEventListener('click',()=>$('#cardOutput').value='');
 
-$('#generateEmails')?.addEventListener('click',()=>{let domain=$('#emailDomainInput').value.trim().toLowerCase().replace(/^@/,'');const n=Math.max(1,Math.min(100,Number($('#emailCount').value)||1));if(!domain||!domain.includes('.')){alert('Enter a valid domain, e.g. example.com');return}$('#emailOutput').value=Array.from({length:n},()=>`${randomString(12)}@${domain}`).join('\n')});
+const EMAIL_NAMES=['olivia','emma','amelia','isla','sophia','mia','ava','luna','noah','liam','oliver','mason','ethan','lucas','maria','angelica','janelle','paolo','miguel','carlo'];
+$('#generateEmails')?.addEventListener('click',()=>{
+ let domain=$('#emailDomainInput').value.trim().toLowerCase().replace(/^@/,'');
+ const n=Math.max(1,Math.min(100,Number($('#emailCount').value)||1));
+ const style=$('#emailStyle')?.value||'name-number';
+ if(!domain||!domain.includes('.')){alert('Enter a valid domain, e.g. example.com');return}
+ const aliases=Array.from({length:n},()=>{
+   let local='';
+   if(style==='name-number') local=`${randomItem(EMAIL_NAMES)}${Math.floor(Math.random()*9000+100)}`;
+   else if(style==='alphabet') local=randomString(12,'abcdefghijklmnopqrstuvwxyz');
+   else local=randomString(10,'0123456789');
+   return `${local}@${domain}`;
+ });
+ $('#emailOutput').value=aliases.join('\n')
+});
 
 const ADDRESS_DATA={
  US:[{city:'New York',region:'NY',postal:'10001'},{city:'Beverly Hills',region:'CA',postal:'90210'},{city:'Chicago',region:'IL',postal:'60601'},{city:'San Francisco',region:'CA',postal:'94105'},{city:'Miami',region:'FL',postal:'33101'}],
