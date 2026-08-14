@@ -13,7 +13,7 @@ async function copyText(text,btn){try{await navigator.clipboard.writeText(text);
 document.querySelectorAll('[data-copy]').forEach(btn=>btn.addEventListener('click',()=>copyText($('#'+btn.dataset.copy)?.value||'',btn)));
 document.querySelectorAll('[data-copy-text]').forEach(btn=>btn.addEventListener('click',()=>copyText($('#'+btn.dataset.copyText)?.textContent||'',btn)));
 
-/* Documented sandbox/test PANs only. Arbitrary real-world BIN generation is intentionally not supported. */
+/* Documented sandbox/test PANs. Arbitrary pasted prefixes generate deliberately non-Luhn mock PANs. */
 const TEST_PREFIXES={
  '424242':{number:'4242424242424242',label:'Visa Test',network:'visa',cvvLength:3},
  '400005':{number:'4000056655665556',label:'Visa Debit Test',network:'visa',cvvLength:3},
@@ -30,29 +30,71 @@ function futureExpiry(monthChoice,yearChoice){
  const y=yearChoice==='random'?String((now.getFullYear()+2+Math.floor(Math.random()*5))%100).padStart(2,'0'):yearChoice;
  return `${m}/${y}`;
 }
-function matchTestBin(value){
- const bin=(value||'').replace(/\D/g,'').slice(0,8);
- if(!bin)return null;
- const entry=Object.entries(TEST_PREFIXES).find(([prefix,data])=>prefix.startsWith(bin)||bin.startsWith(prefix)||data.number.startsWith(bin));
- return entry?{prefix:entry[0],...entry[1]}:null;
+
+function detectNetwork(value){
+ const v=(value||'').replace(/\D/g,'');
+ if(/^3[47]/.test(v))return {key:'amex',label:'American Express',length:15,cvvLength:4};
+ if(/^4/.test(v))return {key:'visa',label:'Visa',length:16,cvvLength:3};
+ if(/^(5[1-5]|2[2-7])/.test(v))return {key:'mastercard',label:'Mastercard',length:16,cvvLength:3};
+ if(/^(6011|65|64[4-9])/.test(v))return {key:'discover',label:'Discover',length:16,cvvLength:3};
+ return {key:'unknown',label:'Mock Prefix',length:16,cvvLength:3};
 }
+
+function matchSandboxInput(value){
+ const digits=(value||'').replace(/\D/g,'');
+ if(!digits)return null;
+ for(const [prefix,data] of Object.entries(TEST_PREFIXES)){
+   if(digits===prefix || data.number.startsWith(digits))return {prefix,...data};
+ }
+ return null;
+}
+
+function luhnValid(number){
+ const digits=String(number).replace(/\D/g,'').split('').reverse().map(Number);
+ let sum=0;
+ for(let i=0;i<digits.length;i++){
+   let d=digits[i];
+   if(i%2===1){d*=2;if(d>9)d-=9}
+   sum+=d;
+ }
+ return sum%10===0;
+}
+
+function makeInvalidMockPan(prefix){
+ const clean=(prefix||'').replace(/\D/g,'').slice(0,12);
+ const network=detectNetwork(clean);
+ const targetLength=network.length;
+ let pan=clean;
+ while(pan.length<targetLength)pan+=Math.floor(Math.random()*10);
+ pan=pan.slice(0,targetLength);
+ if(luhnValid(pan)){
+   const last=Number(pan.at(-1));
+   pan=pan.slice(0,-1)+String((last+1)%10);
+ }
+ return {number:pan,label:`${network.label} · Mock`,network:network.key,cvvLength:network.cvvLength,isMock:true};
+}
+
 function updateBinUI(){
  const input=$('#cardBin'); if(!input)return;
- input.value=input.value.replace(/\D/g,'').slice(0,8);
+ input.value=input.value.replace(/\D/g,'').slice(0,12);
  const value=input.value;
- const match=matchTestBin(value);
+ const sandbox=matchSandboxInput(value);
+ const network=detectNetwork(value);
  const badge=$('#binBadge');
  const msg=$('#binMessage');
- document.querySelectorAll('.bin-chip').forEach(chip=>chip.classList.toggle('active',!!match&&chip.dataset.testBin===match.prefix));
+ document.querySelectorAll('.bin-chip').forEach(chip=>chip.classList.toggle('active',value===chip.dataset.testBin));
  if(!value){
    if(badge)badge.textContent='Random Test';
-   if(msg){msg.textContent='Choose one of the sandbox test prefixes below, or leave it blank for a random test card.';msg.className='field-message'}
- }else if(match){
-   if(badge)badge.textContent=match.label;
-   if(msg){msg.textContent=`Recognized sandbox prefix ${match.prefix}. The generated PAN will stay within the bundled test-card set.`;msg.className='field-message ok'}
+   if(msg){msg.textContent='Paste a 6–12 digit prefix, choose a sandbox preset, or leave blank for a random documented test card.';msg.className='field-message'}
+ }else if(value.length<6){
+   if(badge)badge.textContent=network.label;
+   if(msg){msg.textContent='Enter at least 6 digits.';msg.className='field-message error'}
+ }else if(sandbox){
+   if(badge)badge.textContent=sandbox.label;
+   if(msg){msg.textContent='This matches a bundled documented sandbox/test card.';msg.className='field-message ok'}
  }else{
-   if(badge)badge.textContent='Unsupported';
-   if(msg){msg.textContent='This prefix is not in the bundled sandbox test list. Choose one of the presets below.';msg.className='field-message error'}
+   if(badge)badge.textContent=`${network.label} · Mock`;
+   if(msg){msg.textContent='This prefix will be preserved in generated mock PANs. The completed numbers are intentionally forced to fail Luhn validation.';msg.className='field-message ok'}
  }
 }
 $('#cardBin')?.addEventListener('input',updateBinUI);
@@ -64,12 +106,12 @@ $('#generateCards')?.addEventListener('click',()=>{
  const month=$('#cardMonth').value;
  const year=$('#cardYear').value;
  const cvvInput=$('#cardCvv').value.trim().replace(/\D/g,'').slice(0,4);
- const bin=($('#cardBin')?.value||'').replace(/\D/g,'').slice(0,8);
- let selected=bin?matchTestBin(bin):randomItem(TEST_CARDS);
- if(bin&&!selected){alert('Choose one of the bundled sandbox test BINs shown below the field.');return}
+ const bin=($('#cardBin')?.value||'').replace(/\D/g,'').slice(0,12);
+ if(bin && bin.length<6){alert('Enter at least 6 digits for the BIN / prefix.');return}
+ const sandbox=bin?matchSandboxInput(bin):null;
  const rows=[];
  for(let i=0;i<qty;i++){
-   const card=bin?selected:randomItem(TEST_CARDS);
+   const card=bin?(sandbox||makeInvalidMockPan(bin)):randomItem(TEST_CARDS);
    const cvv=cvvInput||randomString(card.cvvLength,'0123456789');
    rows.push(`${card.number}|${futureExpiry(month,year)}|${cvv}`);
  }
