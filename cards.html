@@ -26,17 +26,17 @@
         <div class="cc-title-icon" aria-hidden="true">▭</div>
         <div>
           <h1>Credit Card Generator</h1>
-          <p>Enter a sandbox BIN / test prefix to generate test-card data.</p>
+          <p>Generate sandbox cards or non-transactional mock card data from a pasted prefix.</p>
         </div>
       </div>
 
       <div class="tool-body cc-body">
-        <label class="bin-label">BIN <span>(First 6–8 digits)</span></label>
+        <label class="bin-label">BIN / Prefix <span>(6–12 digits)</span></label>
         <div class="bin-wrap">
-          <input id="cardBin" type="text" inputmode="numeric" maxlength="8" autocomplete="off" placeholder="e.g. 424242">
-          <span id="binBadge" class="bin-badge">Test BIN</span>
+          <input id="cardBin" type="text" inputmode="numeric" maxlength="12" autocomplete="off" placeholder="Paste 6–12 digits">
+          <span id="binBadge" class="bin-badge">Mock Prefix</span>
         </div>
-        <p id="binMessage" class="field-message">Choose one of the sandbox test prefixes below, or leave it blank for a random test card.</p>
+        <p id="binMessage" class="field-message">Paste a 6–12 digit prefix. Known sandbox prefixes use documented test cards; other prefixes generate mock numbers that intentionally fail Luhn validation.</p>
 
         <div class="bin-presets" aria-label="Sandbox test BIN presets">
           <button type="button" class="bin-chip" data-test-bin="424242">424242 · Visa</button>
@@ -79,13 +79,13 @@
         </div>
 
         <div class="cc-output-wrap">
-          <textarea id="cardOutput" class="output cc-output" readonly placeholder="4242424242424242|08/29|123"></textarea>
+          <textarea id="cardOutput" class="output cc-output" readonly placeholder="4000056655665556|08/29|123"></textarea>
           <button class="output-copy" data-copy="cardOutput" type="button" aria-label="Copy generated cards">Copy</button>
         </div>
       </div>
     </section>
 
-    <p class="cc-footnote">✧ For testing &amp; development only. BIN input is limited to bundled sandbox/test card prefixes. ✧</p>
+    <p class="cc-footnote">✧ Sandbox presets may pass Luhn as documented test credentials. Arbitrary pasted prefixes generate intentionally non-Luhn mock PANs for UI/format testing only. ✧</p>
   </main>
 
   <script src="app.js"></script>
