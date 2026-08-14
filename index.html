@@ -1,107 +1,43 @@
 <!doctype html>
 <html lang="en" data-theme="dark">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="description" content="Wishy Toolkit — safe test-data tools, address samples, refund calculator, email aliases, short links, and format fixer." />
-  <title>Wishy Toolkit</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Wishy Tools — a themed collection of testing and utility tools.">
+  <title>WISHY TOOLS</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="bg" aria-hidden="true"></div>
   <div class="overlay" aria-hidden="true"></div>
 
   <header class="topbar glass">
-    <a class="brand" href="#home" aria-label="Wishy Toolkit home">
-      <span class="brand-mark">W</span>
-      <span>Wishy Toolkit</span>
-    </a>
-    <nav class="nav" aria-label="Tools">
-      <a href="#cards">Test Cards</a><a href="#address">Address</a><a href="#email">Email</a><a href="#refund">Refund</a><a href="#shortlink">Shortlink</a><a href="#formatter">Formatter</a>
-    </nav>
+    <a class="brand" href="index.html"><span class="brand-mark">W</span><span>WISHY TOOLS</span></a>
     <button id="themeToggle" class="icon-btn" type="button" aria-label="Toggle light/dark mode">☾</button>
   </header>
 
-  <main id="home" class="shell">
+  <main class="shell home-shell">
     <section class="hero glass">
       <div>
-        <p class="eyebrow">MAGENTA TESTING SUITE</p>
-        <h1>One toolkit.<br><span>Six useful utilities.</span></h1>
-        <p class="hero-copy">A neon pink utility dashboard inspired by your background artwork. The payment-card section is intentionally limited to sandbox/test credentials so it cannot generate live payment data.</p>
+        <p class="eyebrow">UTILITY COLLECTION</p>
+        <h1>WISHY <span>TOOLS</span></h1>
+        <p class="hero-copy">Choose a tool below. Each utility now has its own dedicated page.</p>
       </div>
-      <div class="hero-badge"><span>SAFE</span><strong>TEST DATA</strong><small>for QA / development</small></div>
     </section>
 
-    <section class="grid">
-      <article id="cards" class="card glass tool-card span-2">
-        <div class="card-head"><div><p class="eyebrow">01 / PAYMENT QA</p><h2>Sandbox Card Generator</h2></div><span class="pill">TEST ONLY</span></div>
-        <p class="muted">Generates only documented sandbox numbers commonly used by payment processors. No BIN search, live card generation, or real credentials.</p>
-        <div class="form-row">
-          <label>Network<select id="cardNetwork"><option value="random">Random test network</option><option value="visa">Visa test</option><option value="mastercard">Mastercard test</option><option value="amex">Amex test</option></select></label>
-          <label>Quantity<input id="cardQty" type="number" min="1" max="20" value="5"></label>
-          <button id="generateCards" class="primary" type="button">Generate test cards</button>
-        </div>
-        <textarea id="cardOutput" class="output" readonly placeholder="Sandbox test credentials will appear here..."></textarea>
-        <div class="actions"><button class="ghost copy" data-copy="cardOutput" type="button">Copy</button><button id="clearCards" class="ghost" type="button">Clear</button></div>
-      </article>
-
-      <article id="address" class="card glass tool-card">
-        <div class="card-head"><div><p class="eyebrow">02 / LOCATION QA</p><h2>Address Sample Generator</h2></div></div>
-        <p class="muted">Uses synthetic street names paired with a curated set of real postal/ZIP codes.</p>
-        <label>Country<select id="country"><option value="US">United States</option><option value="UK">United Kingdom</option><option value="PH">Philippines</option></select></label>
-        <button id="generateAddress" class="primary full" type="button">Generate address sample</button>
-        <div id="addressOutput" class="result-box">Select a country and generate.</div>
-        <button class="ghost copy full" data-copy-text="addressOutput" type="button">Copy address</button>
-      </article>
-
-      <article id="email" class="card glass tool-card">
-        <div class="card-head"><div><p class="eyebrow">03 / ALIASES</p><h2>Email Generator</h2></div></div>
-        <p class="muted">Creates random aliases. Edit the domain list in <code>app.js</code> to use domains you own.</p>
-        <label>Domain<select id="emailDomain"></select></label>
-        <div class="form-row compact"><input id="emailCount" type="number" min="1" max="100" value="10"><button id="generateEmails" class="primary" type="button">Generate</button></div>
-        <textarea id="emailOutput" class="output small" readonly placeholder="Generated aliases..."></textarea>
-        <button class="ghost copy full" data-copy="emailOutput" type="button">Copy emails</button>
-      </article>
-
-      <article id="refund" class="card glass tool-card">
-        <div class="card-head"><div><p class="eyebrow">04 / CALCULATOR</p><h2>Refund Calculator</h2></div></div>
-        <div class="stack">
-          <label>Amount paid<input id="refundAmount" type="number" min="0" step="0.01" placeholder="e.g. 299"></label>
-          <label>Days purchased<input id="daysPurchased" type="number" min="1" step="1" placeholder="e.g. 30"></label>
-          <label>Remaining days<input id="daysRemaining" type="number" min="0" step="1" placeholder="e.g. 18"></label>
-          <label>Service fee<select id="serviceFee"><option value="0.2">0.2</option><option value="0.3">0.3</option><option value="0.4">0.4</option><option value="0.5">0.5</option><option value="0.6">0.6</option><option value="0.7">0.7</option><option value="0.8">0.8</option></select></label>
-        </div>
-        <button id="calculateRefund" class="primary full" type="button">Calculate refund</button>
-        <div id="refundResult" class="result-box emphasis">₱0.00</div>
-        <p class="formula">Formula: (amount ÷ days purchased × remaining days) × service fee</p>
-      </article>
-
-      <article id="shortlink" class="card glass tool-card">
-        <div class="card-head"><div><p class="eyebrow">05 / LINKS</p><h2>Shortlink Maker</h2></div><span class="pill amber">LOCAL DEMO</span></div>
-        <p class="muted">This static build creates compact redirect links that work from this same deployment. A production shortener with persistent slugs needs a database/KV service.</p>
-        <label>Long URL<input id="longUrl" type="url" placeholder="https://example.com/very/long/link"></label>
-        <label>Custom slug (optional)<input id="customSlug" type="text" maxlength="24" placeholder="wish"></label>
-        <button id="makeShortlink" class="primary full" type="button">Create local shortlink</button>
-        <div id="shortlinkOutput" class="result-box mono">—</div>
-        <button class="ghost copy full" data-copy-text="shortlinkOutput" type="button">Copy shortlink</button>
-      </article>
-
-      <article id="formatter" class="card glass tool-card span-2">
-        <div class="card-head"><div><p class="eyebrow">06 / CLEANUP</p><h2>Email + Password Format Fixer</h2></div></div>
-        <p class="muted">Paste one email per line, enter a password once, then format as <strong>Number. Email|Password</strong>.</p>
-        <div class="formatter-grid">
-          <label class="grow">Emails<textarea id="emailsInput" class="input-area" placeholder="name1@example.com&#10;name2@example.com&#10;name3@example.com"></textarea></label>
-          <div class="stack side-controls"><label>Password<input id="passwordInput" type="text" placeholder="Password for all rows"></label><label>Start number<input id="startNumber" type="number" value="1" min="1"></label><button id="formatEmails" class="primary full" type="button">Fix format</button></div>
-        </div>
-        <textarea id="formattedOutput" class="output" readonly placeholder="1. name1@example.com|Password"></textarea>
-        <button class="ghost copy full" data-copy="formattedOutput" type="button">Copy formatted list</button>
-      </article>
+    <section class="tool-grid" aria-label="Wishy Tools">
+      <a class="tool-link glass" href="cards.html"><span class="tool-no">01</span><h2>Credit Card Generator</h2><p>Sandbox test-card output for development and QA.</p><span class="open-link">Open tool →</span></a>
+      <a class="tool-link glass" href="email.html"><span class="tool-no">02</span><h2>Email Generator</h2><p>Generate random aliases using an editable domain.</p><span class="open-link">Open tool →</span></a>
+      <a class="tool-link glass" href="address.html"><span class="tool-no">03</span><h2>Address Generator</h2><p>Synthetic name, address, postal code, and country-formatted phone.</p><span class="open-link">Open tool →</span></a>
+      <a class="tool-link glass" href="refund.html"><span class="tool-no">04</span><h2>Refund Calculator</h2><p>Calculate remaining-value refunds using your service fee.</p><span class="open-link">Open tool →</span></a>
+      <a class="tool-link glass" href="shortlink.html"><span class="tool-no">05</span><h2>Shortlink Maker</h2><p>Create a compact same-site redirect link.</p><span class="open-link">Open tool →</span></a>
+      <a class="tool-link glass" href="formatter.html"><span class="tool-no">06</span><h2>Format Fixer</h2><p>Format email lists as Number. Email|Password.</p><span class="open-link">Open tool →</span></a>
     </section>
 
-    <footer class="footer glass"><span>Wishy Toolkit</span><span>Static-first • Netlify/GitHub Pages ready</span></footer>
+    <footer class="footer glass"><span>WISHY TOOLS</span><span>GitHub Pages / Netlify ready</span></footer>
   </main>
   <script src="app.js"></script>
 </body>
