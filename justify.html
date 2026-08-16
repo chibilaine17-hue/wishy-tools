@@ -1,1 +1,37 @@
-<!doctype html><html lang="en" data-theme="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Justify Text | WISHY TOOLS</title><link rel="stylesheet" href="styles.css"></head><body><div class="bg"></div><div class="overlay"></div><header class="topbar glass"><a class="brand" href="index.html"><span class="brand-mark">W</span><span>WISHY TOOLS</span></a><button id="themeToggle" class="icon-btn">☾</button></header><main class="shell tool-page justify-page"><a class="back-link" href="index.html">← Back to tools</a><section class="tool-panel glass"><div class="tool-head"><p class="eyebrow">PARAGRAPH UTILITY</p><h1>JUSTIFY TEXT</h1><p>Format paragraphs with clean spacing and a justified preview.</p></div><div class="tool-body"><label>Text<textarea id="justifyInput" class="output justify-input" placeholder="Paste your paragraph here…"></textarea></label><div class="row"><label>Alignment<select id="justifyAlign"><option value="justify">Justify</option><option value="left">Left</option><option value="center">Center</option><option value="right">Right</option></select></label><label>Paragraph spacing<select id="paragraphSpacing"><option value="0.7">Compact</option><option value="1" selected>Normal</option><option value="1.5">Relaxed</option><option value="2">Wide</option></select></label></div><button id="justifyText" class="primary full">Format Paragraphs</button><div id="justifyPreview" class="justify-preview">Your formatted paragraph will appear here.</div><textarea id="justifyOutput" class="output" readonly placeholder="Plain formatted text will appear here…"></textarea><div class="actions"><button id="copyJustify" class="ghost">Copy Text</button><button id="copyJustifyHtml" class="ghost">Copy HTML</button></div><p class="note">The preview uses CSS text justification. The plain-text output remains readable when pasted into apps that do not support text alignment.</p></div></section></main><script src="app.js"></script></body></html>
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Justified Text | WISHY TOOLS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .justify-page{max-width:1180px}.justify-editor{padding:22px 28px 28px}.justify-workspace{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}.justify-column{min-width:0}.justify-column-title{display:flex;align-items:center;gap:8px;margin:0 0 7px;font-family:"Space Grotesk",sans-serif;font-size:28px;color:var(--text)}.justify-help{width:20px;height:20px;border:1px solid var(--muted);border-radius:50%;display:grid;place-items:center;font:700 12px Inter;color:var(--muted)}.justify-box{width:100%;height:365px;resize:vertical;border-radius:6px;background:rgba(62,111,165,.82)!important;border-color:rgba(255,255,255,.22)!important;color:#fff!important;font:15px/1.28 ui-monospace,SFMono-Regular,Menlo,monospace;padding:10px 8px;white-space:pre;overflow:auto}.justify-box::placeholder{color:rgba(255,255,255,.7)}.justify-output{cursor:text}.justify-controls{display:flex;flex-wrap:wrap;align-items:end;gap:10px;margin-top:14px}.justify-controls label{margin:0;min-width:130px}.justify-controls input,.justify-controls select{height:40px}.justify-button{height:40px;margin:0!important}.justify-tools{display:flex;gap:8px;margin-top:10px}.justify-tools .ghost{font-size:11px}.justify-note{margin:12px 0 0;color:var(--muted);font-size:11px;line-height:1.5}.justify-mobile-label{display:none}@media(max-width:760px){.justify-workspace{grid-template-columns:1fr}.justify-column-title{font-size:22px}.justify-box{height:280px}.justify-mobile-label{display:inline}.justify-editor{padding:20px}}
+  </style>
+</head>
+<body>
+  <div class="bg" aria-hidden="true"></div><div class="overlay" aria-hidden="true"></div>
+  <header class="topbar glass"><a class="brand" href="index.html"><span class="brand-mark">W</span><span>WISHY TOOLS</span></a><button id="themeToggle" class="icon-btn" type="button" aria-label="Toggle theme">☾</button></header>
+  <main class="shell tool-page justify-page">
+    <a class="back-link" href="index.html">← Back to tools</a>
+    <section class="tool-panel glass">
+      <div class="tool-head"><p class="eyebrow">TEXT UTILITY</p><h1>JUSTIFIED TEXT</h1><p>Turn uneven text into clean fixed-width lines with distributed spacing.</p></div>
+      <div class="justify-editor">
+        <div class="justify-workspace">
+          <div class="justify-column"><h2 class="justify-column-title">Input Text <span class="justify-help" title="Paste text here">?</span></h2><textarea id="justifyInput" class="justify-box" spellcheck="false" placeholder="Paste or type your text here…"></textarea></div>
+          <div class="justify-column"><h2 class="justify-column-title">Justified Text</h2><textarea id="justifyOutput" class="justify-box justify-output" readonly spellcheck="false" placeholder="Your justified text will appear here…"></textarea></div>
+        </div>
+        <div class="justify-controls">
+          <label>Line width<input id="justifyWidth" type="number" min="20" max="120" value="42"></label>
+          <label>Last line<select id="justifyLast"><option value="left">Keep natural</option><option value="justify">Justify</option></select></label>
+          <button id="justifyText" class="primary justify-button" type="button">Justify Text</button>
+        </div>
+        <div class="justify-tools"><button id="copyJustify" class="ghost" type="button">Copy</button><button id="clearJustify" class="ghost" type="button">Clear</button></div>
+        <p class="justify-note">The tool wraps text to the selected character width and distributes extra spaces between words so each eligible line reaches the same width. Paragraph breaks are preserved.</p>
+      </div>
+    </section>
+  </main>
+  <script src="app.js"></script><script src="justify-tool.js"></script>
+</body>
+</html>
