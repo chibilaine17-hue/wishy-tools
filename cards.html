@@ -31,12 +31,12 @@
       </div>
 
       <div class="tool-body cc-body">
-        <label class="bin-label">BIN / Prefix <span>(6–12 digits)</span></label>
+        <label class="bin-label">BIN / Prefix <span>(6+ digits)</span></label>
         <div class="bin-wrap">
-          <input id="cardBin" type="text" inputmode="numeric" maxlength="12" autocomplete="off" placeholder="Paste 6–12 digits">
+          <input id="cardBin" type="text" inputmode="numeric" autocomplete="off" placeholder="Paste 6 or more digits">
           <span id="binBadge" class="bin-badge">Mock Prefix</span>
         </div>
-        <p id="binMessage" class="field-message">Paste a 6–12 digit prefix. Known sandbox prefixes use documented test cards; other prefixes generate mock numbers that intentionally fail Luhn validation.</p>
+        <p id="binMessage" class="field-message">You can paste a prefix longer than 12 digits. For custom mock generation, the generator uses only the supported prefix portion needed for the test output.</p>
 
         <div class="bin-presets" aria-label="BIN example presets">
           <button type="button" class="bin-chip" data-test-bin="414720">414720 · Visa (US)</button>
@@ -85,7 +85,7 @@
       </div>
     </section>
 
-    <p class="cc-footnote">✧ Sandbox presets may pass Luhn as documented test credentials. Arbitrary pasted prefixes generate intentionally non-Luhn mock PANs for UI/format testing only. ✧</p>
+    <p class="cc-footnote">✧ Sandbox presets may pass Luhn as documented test credentials. Arbitrary pasted prefixes generate intentionally non-Luhn mock PANs for testing UI only. ✧</p>
   </main>
 
   <script src="app.js"></script>
